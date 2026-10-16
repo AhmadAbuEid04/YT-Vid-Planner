@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+        <title>MyFlow</title>
+        <link rel = "stylesheet" href = "style.css">
+        
+    </head>
+
+    <body>
+        <header>
+            <h1>MyFlow</h1>
+        </header>
+        <main>
+            <section id = "planner">
+                <h2>Plan Your YouTube Content</h2>
+                <form id = "content-form">
+                    <label for = "video-title">Video Title:</label>
+                    <input type = "text" id = "video-title" name = "video-title" required>
+
+                    <label for = "video-description">Video Description:</label>
+                    <textarea id = "video-description" name = "video-description" required></textarea>
+
+                    <label for = "main-points">Main Points</label>
+                    <textarea id = "main-points" name = "main-points" placeholder = "• Press Enter for a new point" required></textarea>
+
+                    <button type = "submit">Add to Planner</button>
+                </form>
+                <div id = "content-list">
+                    <h3>Your Planned Content</h3>
+                    <div id = "planned-content"></div>
+
+                </div>
+            </section>
+        </main>
+        <script>
+            const STORAGE_KEY = "yt-planner-videos";
+
+            const form = document.getElementById("content-form");
+            const titleInput = document.getElementById("video-title");
+            const descriptionInput = document.getElementById("video-description");
+            const pointsInput = document.getElementById("main-points");
+            const grid = document.getElementById("planned-content");
+
+            const ICONS = ["🎬", "🎥", "📹", "🎞️", "💡"];
+            const BULLET = "• ";
+            const MAX_CARD_POINTS = 3;
+
+            let videos = loadVideos();
+
+            function loadVideos() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+                } catch {
+                    return [];
+                }
+            }
+
+            function saveVideos() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+                } catch {}
+            }
+
+            function parsePoints(text) {
+                return text
+                    .split("\n")
+                    .map((line) => line.replace(/^\s*[•\-*]\s*/, "").trim())
+                    .filter(Boolean);
+            }
+
+            // Start the list with a bullet when the box is first used
+            pointsInput.addEventListener("focus", () => {
+                if (pointsInput.value === "") pointsInput.value = BULLET;
+            });
+
+            // Clear a lone bullet so the placeholder shows again
+            pointsInput.addEventListener("blur", () => {
+                if (pointsInput.value.trim() === BULLET.trim()) pointsInput.value = "";
+            });
+
+            // Enter starts a new bulleted line
+            pointsInput.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" || event.shiftKey) return;
+                event.preventDefault();
+                const { selectionStart, selectionEnd, value } = pointsInput;
+                const insert = "\n" + BULLET;
+                pointsInput.value = value.slice(0, selectionStart) + insert + value.slice(selectionEnd);
+                pointsInput.selectionStart = pointsInput.selectionEnd = selectionStart + insert.length;
+            });
+
+            pointsInput.addEventListener("input", () => pointsInput.setCustomValidity(""));
+
+            function createNewCard() {
+                const card = document.createElement("button");
+                card.type = "button";
+                card.className = "video-card new-card";
+                card.innerHTML = '<span class = "plus">+</span><span>New video</span>';
+                card.addEventListener("click", () => titleInput.focus());
+                return card;
+            }
+
+            function createVideoCard(video, index) {
+                const card = document.createElement("div");
+                card.className = "video-card";
+
+                const icon = document.createElement("div");
+                icon.className = "icon";
+                icon.textContent = ICONS[index % ICONS.length];
+
+                const title = document.createElement("h4");
+                title.textContent = video.title;
+
+                const description = document.createElement("p");
+                description.textContent = video.description;
+
+                const points = video.points || [];
+                const pointsList = document.createElement("ul");
+                pointsList.className = "points";
+                points.slice(0, MAX_CARD_POINTS).forEach((point) => {
+                    const item = document.createElement("li");
+                    item.textContent = point;
+                    pointsList.appendChild(item);
+                });
+                if (points.length > MAX_CARD_POINTS) {
+                    const more = document.createElement("li");
+                    more.className = "more";
+                    more.textContent = `+${points.length - MAX_CARD_POINTS} more`;
+                    pointsList.appendChild(more);
+                }
+
+                const meta = document.createElement("div");
+                meta.className = "meta";
+                meta.textContent = new Date(video.id).toLocaleDateString(undefined, {
+                    month: "short", day: "numeric", year: "numeric"
+                });
+
+                const removeButton = document.createElement("button");
+                removeButton.className = "remove";
+                removeButton.title = "Remove";
+                removeButton.textContent = "✕";
+                removeButton.addEventListener("click", () => {
+                    videos = videos.filter((v) => v.id !== video.id);
+                    saveVideos();
+                    renderVideos();
+                });
+
+                card.append(removeButton, icon, title, description);
+                if (points.length) card.appendChild(pointsList);
+                card.appendChild(meta);
+                return card;
+            }
+
+            function renderVideos() {
+                grid.innerHTML = "";
+                grid.appendChild(createNewCard());
+                videos
+                    .slice()
+                    .reverse()
+                    .forEach((video, i) => grid.appendChild(createVideoCard(video, i)));
+            }
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+
+                const title = titleInput.value.trim();
+                const description = descriptionInput.value.trim();
+                const points = parsePoints(pointsInput.value);
+                if (!title || !description) return;
+                if (points.length === 0) {
+                    pointsInput.setCustomValidity("Add at least one main point.");
+                    pointsInput.reportValidity();
+                    return;
+                }
+
+                videos.push({ id: Date.now(), title, description, points });
+                saveVideos();
+                renderVideos();
+
+                form.reset();
+                titleInput.focus();
+            });
+
+            renderVideos();
+        </script>
+    </body>
+
+</html>

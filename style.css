@@ -1,0 +1,231 @@
+:root {
+    --bg: #f8f9fc;
+    --surface: #ffffff;
+    --border: #e2e5ec;
+    --text: #1f1f1f;
+    --muted: #5f6368;
+    --accent: #1a73e8;
+    --accent-soft: #e8f0fe;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #131314;
+        --surface: #1e1f20;
+        --border: #3c4043;
+        --text: #e3e3e3;
+        --muted: #9aa0a6;
+        --accent: #8ab4f8;
+        --accent-soft: #263248;
+    }
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+header {
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+#planner h2 {
+    font-size: 2rem;
+    font-weight: 400;
+    margin: 0 0 24px;
+}
+
+#content-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 560px;
+    padding: 20px;
+    margin-bottom: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+#content-form label {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+#content-form input,
+#content-form textarea {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+#content-form textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+#content-form button {
+    align-self: flex-start;
+    font: inherit;
+    font-weight: 500;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--surface);
+    cursor: pointer;
+}
+
+#content-list h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 0 16px;
+}
+
+#planned-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.video-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.video-card:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.video-card .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    background: var(--accent-soft);
+}
+
+.video-card h4 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.video-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.video-card .points {
+    margin: 12px 0 0;
+    padding-left: 18px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.video-card .points li {
+    margin-bottom: 4px;
+    overflow-wrap: anywhere;
+}
+
+.video-card .points .more {
+    list-style: none;
+    margin-left: -18px;
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.video-card .meta {
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.video-card .remove {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.video-card:hover .remove,
+.video-card .remove:focus { opacity: 1; }
+
+.video-card .remove:hover { background: var(--border); }
+
+.new-card {
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border-style: dashed;
+    cursor: pointer;
+    font: inherit;
+    color: var(--text);
+}
+
+.new-card .plus {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+}
